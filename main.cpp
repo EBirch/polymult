@@ -5,9 +5,9 @@
 #include <ctime>
 #include <iostream>
 
-std::vector<float> dumbMult(std::vector<float> poly1, std::vector<float> poly2);
-std::vector<float> fourMult(std::vector<float> poly1, std::vector<float> poly2);
-std::vector<float> threeMult(std::vector<float> poly1, std::vector<float> poly2);
+std::vector<float> dumbMult(std::vector<float> &poly1, std::vector<float> &poly2);
+std::vector<float> fourMult(std::vector<float> &poly1, std::vector<float> &poly2);
+std::vector<float> threeMult(std::vector<float> &poly1, std::vector<float> &poly2);
 
 int main(int argc, char **argv){
 	if(argc < 3){
@@ -15,6 +15,10 @@ int main(int argc, char **argv){
 		return -1;
 	}
 	int POLYTERMS = atoi(argv[2]);
+	if(POLYTERMS < 2 || (POLYTERMS & (POLYTERMS - 1))){
+		std::cout<<"Problem size must be a power of 2\n";
+		return -1;
+	}
 	std::mt19937 rng(time(NULL));
 	std::uniform_real_distribution<> dist(-1, 1);
 	std::vector<float> poly1(POLYTERMS), poly2(POLYTERMS);
@@ -26,16 +30,17 @@ int main(int argc, char **argv){
 		case 'd': temp = dumbMult(poly1, poly2); break;
 		case '4': temp = fourMult(poly1, poly2); break;
 		case '3': temp = threeMult(poly1, poly2); break;
+		default: "Invalid algorithm argument\n"; return -1;
 	}
 	std::cout<<"Ran in "<<(std::chrono::duration_cast<std::chrono::duration<float>>(std::chrono::steady_clock::now() - start).count())<<" seconds"<<std::endl;
-	std::cout<<"Resulting coefficients: ";
-	for(auto &term : temp){
-		std::cout<<term<<" ";
-	}
-	std::cout<<std::endl;
+	// std::cout<<"Resulting coefficients: ";
+	// for(auto &term : temp){
+	// 	std::cout<<term<<" ";
+	// }
+	// std::cout<<std::endl;
 }
 
-std::vector<float> dumbMult(std::vector<float> poly1, std::vector<float> poly2){
+std::vector<float> dumbMult(std::vector<float> &poly1, std::vector<float> &poly2){
 	std::vector<float> result(2 * poly1.size() - 1, 0);
 	for(int i = 0; i < poly1.size(); ++i){
 		for(int j = 0; j < poly2.size(); ++j){
@@ -45,7 +50,7 @@ std::vector<float> dumbMult(std::vector<float> poly1, std::vector<float> poly2){
 	return result;
 }
 
-std::vector<float> fourMult(std::vector<float> poly1, std::vector<float> poly2){
+std::vector<float> fourMult(std::vector<float> &poly1, std::vector<float> &poly2){
 	if(poly1.size() == 1){
 		return std::vector<float> {poly1[0] * poly2[0]};
 	}
@@ -73,8 +78,8 @@ std::vector<float> fourMult(std::vector<float> poly1, std::vector<float> poly2){
 	return result;
 }
 
-std::vector<float> threeMult(std::vector<float> poly1, std::vector<float> poly2){
-		if(poly1.size() == 1){
+std::vector<float> threeMult(std::vector<float> &poly1, std::vector<float> &poly2){
+	if(poly1.size() == 1){
 		return std::vector<float> {poly1[0] * poly2[0]};
 	}
 	std::vector<float> p1Low(&poly1[0], &poly1[poly1.size() / 2]);
