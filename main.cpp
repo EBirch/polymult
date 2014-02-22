@@ -21,18 +21,23 @@ int main(int argc, char **argv){
 	}
 	std::mt19937 rng(time(NULL));
 	std::uniform_real_distribution<> dist(-1, 1);
-	std::vector<float> poly1(POLYTERMS), poly2(POLYTERMS);
-	std::generate(poly1.begin(), poly1.end(), [&](){return dist(rng);});
-	std::generate(poly2.begin(), poly2.end(), [&](){return dist(rng);});
-	std::vector<float> temp;
-	auto start = std::chrono::steady_clock::now();
-	switch(argv[1][1]){
-		case 'd': temp = dumbMult(poly1, poly2); break;
-		case '4': temp = fourMult(poly1, poly2); break;
-		case '3': temp = threeMult(poly1, poly2); break;
-		default: "Invalid algorithm argument\n"; return -1;
+	std::vector<float> times;
+	for(int i = 0; i < 10; ++i){
+		std::vector<float> poly1(POLYTERMS), poly2(POLYTERMS);
+		std::generate(poly1.begin(), poly1.end(), [&](){return dist(rng);});
+		std::generate(poly2.begin(), poly2.end(), [&](){return dist(rng);});
+		std::vector<float> temp;
+		auto start = std::chrono::steady_clock::now();
+		switch(argv[1][1]){
+			case 'd': temp = dumbMult(poly1, poly2); break;
+			case '4': temp = fourMult(poly1, poly2); break;
+			case '3': temp = threeMult(poly1, poly2); break;
+			default: "Invalid algorithm argument\n"; return -1;
+		}
+		times.push_back(std::chrono::duration_cast<std::chrono::duration<float>>(std::chrono::steady_clock::now() - start).count());
+		// std::cout<<"Ran in "<<(std::chrono::duration_cast<std::chrono::duration<float>>(std::chrono::steady_clock::now() - start).count())<<" seconds"<<std::endl;
 	}
-	std::cout<<"Ran in "<<(std::chrono::duration_cast<std::chrono::duration<float>>(std::chrono::steady_clock::now() - start).count())<<" seconds"<<std::endl;
+	std::cout<<"Mean time: "<<(std::accumulate(times.begin(), times.end(), 0.0) / times.size())<<" seconds"<<std::endl;
 	// std::cout<<"Resulting coefficients: ";
 	// for(auto &term : temp){
 	// 	std::cout<<term<<" ";
